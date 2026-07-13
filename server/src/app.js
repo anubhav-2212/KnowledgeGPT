@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import apiRouter from './routes/index.js';
+import apiRouter from './routes/routes.js';
+import connectDB from './utils/db.js';
 
 const app = express();
 
@@ -9,6 +10,8 @@ app.use(express.json());
 
 // Main API routes
 app.use('/api', apiRouter);
+//
+connectDB();
 
 // Sample API route
 app.get('/api/hello', (req, res) => {
