@@ -2,22 +2,23 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import Chat from './components/Chat.jsx'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [serverMessage, setServerMessage] = useState('Connecting to Express backend...')
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/hello')
+    // Port 5001 is used in our backend env file
+    fetch('http://localhost:5001/api/hello')
       .then((res) => res.json())
       .then((data) => {
         setServerMessage(data.message)
         setIsConnected(true)
       })
       .catch((err) => {
-        setServerMessage('Could not reach Express backend at http://localhost:5000')
+        setServerMessage('Could not reach Express backend at http://localhost:5001')
         setIsConnected(false)
         console.error(err)
       })
@@ -25,40 +26,32 @@ function App() {
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+      <section id="center" className="py-6">
+        <div className="hero mb-2">
+          <img src={heroImg} className="base" width="100" height="105" alt="" />
+          <img src={reactLogo} className="framework" style={{ top: '20px', height: '18px' }} alt="React logo" />
+          <img src={viteLogo} className="vite" style={{ top: '65px', height: '16px' }} alt="Vite logo" />
         </div>
-        <div>
-          <h1>Vite + React & Express.js</h1>
-          <p style={{ margin: '1rem 0' }}>
-            A premium full-stack template utilizing ES Modules.
+        
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight mb-2">
+            Socket.io Chat Application
+          </h1>
+          <p className="text-sm text-slate-400 max-w-md mx-auto mb-4">
+            A premium full-stack real-time workspace chat client utilizing Tailwind CSS v4 and ES Modules.
           </p>
-          <div style={{
-            padding: '12px 24px',
-            borderRadius: '12px',
-            background: isConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            border: isConnected ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-            color: isConnected ? '#10b981' : '#ef4444',
-            display: 'inline-block',
-            fontWeight: '600',
-            fontSize: '0.95rem',
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-            marginBottom: '1.5rem',
-            transition: 'all 0.3s ease'
-          }}>
-            Status: {serverMessage}
+          <div className={`px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-semibold border ${
+            isConnected 
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' 
+              : 'bg-rose-500/10 text-rose-400 border-rose-500/25'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+            Backend Status: {serverMessage}
           </div>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+
+        {/* Real-time Chat Section */}
+        <Chat />
       </section>
 
       <div className="ticks"></div>
