@@ -11,3 +11,4 @@ export default async function connectDB() {
         process.exit(1);
     }
 }
+
