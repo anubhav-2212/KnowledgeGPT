@@ -31,7 +31,8 @@ export default function initSocket(server) {
         id: `${socket.id}-${Date.now()}`,
         sender: data.sender || 'Anonymous',
         text: data.text || '',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        socketId: socket.id
       };
 
       // Store in history

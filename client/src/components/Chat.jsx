@@ -27,6 +27,7 @@ export default function Chat() {
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
+      
       setConnected(true);
     });
 
@@ -64,7 +65,10 @@ export default function Chat() {
     socket.emit('chat:message', {
       sender: nickname,
       text: messageText,
+      socketId: socket.id,
     });
+   
+    
 
     setMessageText('');
   };
@@ -203,7 +207,8 @@ export default function Chat() {
             </div>
           ) : (
             messages.map((msg) => {
-              const isSelf = msg.sender === nickname;
+              const isSelf = msg.socketId === socket?.id;
+             
               return (
                 <div
                   key={msg.id}
