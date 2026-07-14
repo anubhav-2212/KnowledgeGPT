@@ -1,146 +1,101 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import Chat from './components/Chat.jsx'
-import './App.css'
+import { useState, useEffect } from 'react';
+import ThemeToggle from './components/ThemeToggle.jsx';
+import SourceManager from './components/SourceManager.jsx';
+import Chat from './components/Chat.jsx';
+import { Sparkles, Activity } from 'lucide-react';
+import './App.css';
 
 function App() {
-  const [serverMessage, setServerMessage] = useState('Connecting to Express backend...')
-  const [isConnected, setIsConnected] = useState(false)
+  const [serverMessage, setServerMessage] = useState('Connecting to Express backend...');
+  const [isConnected, setIsConnected] = useState(false);
+  
+  // Shared state for knowledge sources
+  const [sources, setSources] = useState([]);
 
   useEffect(() => {
-    // Port 5001 is used in our backend env file
+    // Fetch Express backend status
     fetch('http://localhost:5001/api/hello')
       .then((res) => res.json())
       .then((data) => {
-        setServerMessage(data.message)
-        setIsConnected(true)
+        setServerMessage(data.message);
+        setIsConnected(true);
       })
       .catch((err) => {
-        setServerMessage('Could not reach Express backend at http://localhost:5001')
-        setIsConnected(false)
-        console.error(err)
-      })
-  }, [])
+        setServerMessage('Could not reach Express backend at http://localhost:5001');
+        setIsConnected(false);
+        console.error(err);
+      });
+  }, []);
+
+  const handleAddSource = (newSource) => {
+    setSources((prev) => [...prev, newSource]);
+  };
+
+  const handleDeleteSource = (id) => {
+    setSources((prev) => prev.filter((s) => s.id !== id));
+  };
 
   return (
-    <>
-      <section id="center" className="py-6">
-        <div className="hero mb-2">
-          <img src={heroImg} className="base" width="100" height="105" alt="" />
-          <img src={reactLogo} className="framework" style={{ top: '20px', height: '18px' }} alt="React logo" />
-          <img src={viteLogo} className="vite" style={{ top: '65px', height: '16px' }} alt="Vite logo" />
-        </div>
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      
+      {/* Universal Sticky Top Bar */}
+      <header className="sticky top-0 z-20 w-full px-6 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-sm">
         
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight mb-2">
-            Socket.io Chat Application
-          </h1>
-          <p className="text-sm text-slate-400 max-w-md mx-auto mb-4">
-            A premium full-stack real-time workspace chat client utilizing Tailwind CSS v4 and ES Modules.
-          </p>
-          <div className={`px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-semibold border ${
-            isConnected 
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' 
-              : 'bg-rose-500/10 text-rose-400 border-rose-500/25'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-            Backend Status: {serverMessage}
+        {/* Branding */}
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
+          </div>
+          <div>
+            <h1 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight leading-none m-0">
+              KnowledgeGPT
+            </h1>
+            <p className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5 leading-none">
+              AI Assistant
+            </p>
           </div>
         </div>
 
-        {/* Real-time Chat Section */}
-        <Chat />
-      </section>
+        {/* Action Controls & Badges */}
+        <div className="flex items-center gap-3.5">
+          
+          <div 
+            title={serverMessage}
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all duration-300 ${
+              isConnected 
+                ? 'bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' 
+                : 'bg-rose-500/5 text-rose-600 dark:text-rose-400 border-rose-500/20'
+            }`}
+          >
+            <Activity className={`w-3.5 h-3.5 ${isConnected ? 'text-emerald-500' : 'text-rose-500 animate-pulse'}`} />
+            <span>Backend Status: {isConnected ? 'Online' : 'Offline'}</span>
+          </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          {/* Theme Switcher Toggle */}
+          <ThemeToggle />
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Main Workspace Frame */}
+      <main className="flex-grow flex flex-col md:flex-row h-[calc(100vh-65px)] overflow-hidden">
+        
+        {/* Left Side Panel: Source Management */}
+        <section className="w-full md:w-[35%] lg:w-[30%] shrink-0 h-auto md:h-full overflow-y-auto">
+          <SourceManager 
+            sources={sources} 
+            onAddSource={handleAddSource} 
+            onDeleteSource={handleDeleteSource} 
+          />
+        </section>
+
+        {/* Right Side Panel: Conversational AI chat */}
+        <section className="w-full md:w-[65%] lg:w-[70%] flex flex-col h-[550px] md:h-full overflow-hidden">
+          <Chat sources={sources} />
+        </section>
+
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
