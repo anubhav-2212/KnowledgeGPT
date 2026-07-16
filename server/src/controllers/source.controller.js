@@ -1,5 +1,7 @@
 import Source from '../models/Source.js';
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
+import { extractPdfText } from '../services/extractors/pdf.service.js';
+
 
 export const createTextSource = async (req, res) => {
   try {
@@ -123,7 +125,9 @@ export const uploadPdfSource = async (req, res) => {
         message: 'PDF file required',
       });
     }
-
+    const {text,pages,info} = await extractPdfText(file.path);
+    console.log(text,pages,info)
+    
     const knowledgeBase = await KnowledgeBase.findById(knowledgeBaseId);
     if (!knowledgeBase) {
       return res.status(404).json({
@@ -138,6 +142,9 @@ export const uploadPdfSource = async (req, res) => {
       sourceType: 'pdf',
       sourceName: file.originalname,
       status: 'processing',
+      extractedText: text,
+      pages: pages,
+      info: JSON.stringify(info),  
     });
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
