@@ -7,7 +7,7 @@ import { extractPdfText } from '../services/extractors/pdf.service.js';
 export const createTextSource = async (req, res) => {
   try {
     const { knowledgeBaseId, content } = req.body;
-    console.log(knowledgeBaseId,content)
+
 
     if (!knowledgeBaseId) {
       return res.status(400).json({
