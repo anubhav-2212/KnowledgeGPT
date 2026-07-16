@@ -12,4 +12,5 @@ const blacklistedTokenSchema = new mongoose.Schema({
   }
 });
 
-export const BlacklistedToken = mongoose.model("BlacklistedToken", blacklistedTokenSchema);
+const BlacklistedToken = mongoose.model("BlacklistedToken", blacklistedTokenSchema);
+export default BlacklistedToken;
