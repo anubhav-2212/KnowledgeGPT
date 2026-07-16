@@ -1,3 +1,4 @@
+import fs from 'fs';
 import Source from '../models/Source.js';
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
 import { extractPdfText } from '../services/extractors/pdf.service.js';
@@ -108,8 +109,8 @@ export const createWebsiteSource = async (req, res) => {
 };
 
 export const uploadPdfSource = async (req, res) => {
+  const file = req.file;
   try {
-    const file = req.file;
     const { knowledgeBaseId } = req.body;
 
     if (!knowledgeBaseId) {
@@ -125,9 +126,17 @@ export const uploadPdfSource = async (req, res) => {
         message: 'PDF file required',
       });
     }
-    const {text,pages,info} = await extractPdfText(file.path);
-    console.log(text,pages,info)
-    
+
+    const result = await extractPdfText(file.path);
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: `Failed to extract PDF text: ${result.error}`,
+      });
+    }
+
+    const { text, pages, info } = result;
+
     const knowledgeBase = await KnowledgeBase.findById(knowledgeBaseId);
     if (!knowledgeBase) {
       return res.status(404).json({
@@ -141,10 +150,10 @@ export const uploadPdfSource = async (req, res) => {
       userId: req.user.id,
       sourceType: 'pdf',
       sourceName: file.originalname,
-      status: 'processing',
+      status: 'ready', // Text is already extracted synchronously
       extractedText: text,
       pages: pages,
-      info: JSON.stringify(info),  
+      info: info ? JSON.stringify(info) : undefined,
     });
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
@@ -161,6 +170,15 @@ export const uploadPdfSource = async (req, res) => {
       success: false,
       message: 'PDF upload failed',
     });
+  } finally {
+    // Delete the temporary file from the disk to prevent space leaks
+    if (file && file.path && fs.existsSync(file.path)) {
+      try {
+        fs.unlinkSync(file.path);
+      } catch (err) {
+        console.error('Failed to delete temporary upload file:', err);
+      }
+    }
   }
 };
 
