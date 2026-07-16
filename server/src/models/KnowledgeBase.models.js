@@ -15,6 +15,11 @@ const knowledgeBaseSchema = new mongoose.Schema({
   description: {
     type: String,
     default: ""
+  },
+
+  totalSources: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
