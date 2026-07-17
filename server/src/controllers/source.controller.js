@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Source from '../models/Source.js';
+import Source from '../models/Source.models.js';
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
 import { extractPdfText } from '../services/extractors/pdf.service.js';
 import { extractWebsiteText } from '../services/extractors/website.service.js';
