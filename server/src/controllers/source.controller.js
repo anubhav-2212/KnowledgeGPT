@@ -75,6 +75,7 @@ export const createWebsiteSource = async (req, res) => {
       });
     }
     const extractionResult = await extractWebsiteText(url);
+  
 
     if (!extractionResult.success) {
       return res.status(400).json({
@@ -138,6 +139,7 @@ export const uploadPdfSource = async (req, res) => {
     }
 
     const result = await extractPdfText(file.path);
+    const cleanedText = result.text.replace(/\s+/g, " ").trim();
     if (!result.success) {
       return res.status(400).json({
         success: false,
@@ -161,7 +163,7 @@ export const uploadPdfSource = async (req, res) => {
       sourceType: 'pdf',
       sourceName: file.originalname,
       status: 'ready', // Text is already extracted synchronously
-      extractedText: text,
+      extractedText: cleanedText,
       pages: pages,
       info: info ? JSON.stringify(info) : undefined,
     });
