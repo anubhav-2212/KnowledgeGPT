@@ -3,6 +3,8 @@ import Source from '../models/Source.models.js';
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
 import { extractPdfText } from '../services/extractors/pdf.service.js';
 import { extractWebsiteText } from '../services/extractors/website.service.js';
+import { createChunks } from '../services/chunking.service.js';
+import { Chunk } from '../models/chunks.models.js';
 
 export const createTextSource = async (req, res) => {
   try {
@@ -39,6 +41,16 @@ export const createTextSource = async (req, res) => {
       extractedText: content.trim(),
       status: 'ready',
     });
+    const chunks = await createChunks(content.trim());
+    await Chunk.insertMany(
+      chunks.map((chunk, index) => ({
+        sourceId: source._id,
+        knowledgeBaseId: knowledgeBaseId,
+        userId: req.user.id,
+        content: chunk,
+        chunkIndex: index,
+      }))
+    );
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
@@ -75,7 +87,21 @@ export const createWebsiteSource = async (req, res) => {
       });
     }
     const extractionResult = await extractWebsiteText(url);
-  
+    if (!extractionResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: extractionResult.error,
+      });
+    }
+    const source = await Source.create({
+      knowledgeBaseId,
+      userId: req.user.id,
+      sourceType: 'website',
+      sourceName: extractionResult.title,
+      sourceUrl: url,
+      status: 'ready', // Text is already extracted synchronously
+      extractedText: extractionResult.text,
+    });
 
     if (!extractionResult.success) {
       return res.status(400).json({
@@ -83,6 +109,16 @@ export const createWebsiteSource = async (req, res) => {
         message: extractionResult.error,
       });
     }
+    const chunks = await createChunks(extractionResult.text);
+    await Chunk.insertMany(
+      chunks.map((chunk, index) => ({
+        sourceId:source._id,
+        knowledgeBaseId: knowledgeBaseId,
+        userId: req.user.id,
+        content: chunk,
+        chunkIndex: index,
+      }))
+    );
 
     const knowledgeBase = await KnowledgeBase.findById(knowledgeBaseId);
     if (!knowledgeBase) {
@@ -91,16 +127,8 @@ export const createWebsiteSource = async (req, res) => {
         message: 'Knowledge Base not found',
       });
     }
+   
 
-    const source = await Source.create({
-      knowledgeBaseId,
-      userId: req.user.id,
-      sourceType: 'website',
-      sourceName: extractionResult.title,
-      sourceUrl: url,
-      status: 'ready',
-      extractedText: extractionResult.text,
-    });
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
@@ -156,7 +184,6 @@ export const uploadPdfSource = async (req, res) => {
         message: 'Knowledge Base not found',
       });
     }
-
     const source = await Source.create({
       knowledgeBaseId,
       userId: req.user.id,
@@ -167,6 +194,18 @@ export const uploadPdfSource = async (req, res) => {
       pages: pages,
       info: info ? JSON.stringify(info) : undefined,
     });
+    //chunking function
+    const chunks = await createChunks(cleanedText);
+    await Chunk.insertMany(
+      chunks.map((chunk, index) => ({
+        sourceId: source._id,
+        knowledgeBaseId: knowledgeBaseId,
+        userId: req.user.id,
+        content: chunk,
+        chunkIndex: index,
+      }))
+    );
+    
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
