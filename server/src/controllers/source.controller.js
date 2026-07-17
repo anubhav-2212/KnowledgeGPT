@@ -2,7 +2,7 @@ import fs from 'fs';
 import Source from '../models/Source.js';
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
 import { extractPdfText } from '../services/extractors/pdf.service.js';
-
+import { extractWebsiteText } from '../services/extractors/website.service.js';
 
 export const createTextSource = async (req, res) => {
   try {
@@ -74,6 +74,14 @@ export const createWebsiteSource = async (req, res) => {
         message: 'URL is required',
       });
     }
+    const extractionResult = await extractWebsiteText(url);
+
+    if (!extractionResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: extractionResult.error,
+      });
+    }
 
     const knowledgeBase = await KnowledgeBase.findById(knowledgeBaseId);
     if (!knowledgeBase) {
@@ -87,9 +95,10 @@ export const createWebsiteSource = async (req, res) => {
       knowledgeBaseId,
       userId: req.user.id,
       sourceType: 'website',
-      sourceName: url,
+      sourceName: extractionResult.title,
       sourceUrl: url,
-      status: 'processing',
+      status: 'ready',
+      extractedText: extractionResult.text,
     });
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
