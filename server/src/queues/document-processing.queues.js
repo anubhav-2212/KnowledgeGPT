@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { redisConnection } from "../config/redis.js";
+import { redisConnection } from "../utils/redis.js";
 
 export const documentQueue = new Queue(
     "document-processing",

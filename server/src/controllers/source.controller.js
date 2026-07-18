@@ -5,6 +5,7 @@ import { extractPdfText } from '../services/extractors/pdf.service.js';
 import { extractWebsiteText } from '../services/extractors/website.service.js';
 import { createChunks } from '../services/chunking.service.js';
 import { Chunk } from '../models/chunks.models.js';
+import { enqueueDocumentProcessing } from '../services/document-processing.service.js';
 
 export const createTextSource = async (req, res) => {
   try {
@@ -51,6 +52,7 @@ export const createTextSource = async (req, res) => {
         chunkIndex: index,
       }))
     );
+    await enqueueDocumentProcessing(source._id);
 
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
@@ -119,6 +121,7 @@ export const createWebsiteSource = async (req, res) => {
         chunkIndex: index,
       }))
     );
+    await enqueueDocumentProcessing(source._id);
 
     const knowledgeBase = await KnowledgeBase.findById(knowledgeBaseId);
     if (!knowledgeBase) {
@@ -127,9 +130,7 @@ export const createWebsiteSource = async (req, res) => {
         message: 'Knowledge Base not found',
       });
     }
-   
-
-
+  
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
     });
@@ -205,8 +206,8 @@ export const uploadPdfSource = async (req, res) => {
         chunkIndex: index,
       }))
     );
-    
-
+    await enqueueDocumentProcessing(source._id);
+   
     await KnowledgeBase.findByIdAndUpdate(knowledgeBaseId, {
       $inc: { totalSources: 1 },
     });
