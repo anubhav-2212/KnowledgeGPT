@@ -34,17 +34,44 @@ const sourceSchema = new mongoose.Schema(
       default: "",
     },
 
-    status: {
-      type: String,
-      enum: [
-        "uploaded",
+   status: {
+    type: String,
+    enum: [
         "processing",
+        "embedding",
         "ready",
-        "failed",
-      ],
-      default: "uploaded",
-    },
+        "failed"
+    ],
+    default: "processing",
+},
+
+// ------------------ chunks ------------------
+   chunkIds: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Chunk",
+    default: []
   },
+
+  vectorStoreId: {
+    type: String,
+    default: ""
+  },
+
+  totalChunks: {
+    type: Number,
+    default: 0
+  },
+
+  chunkSize: {
+    type: Number,
+    default: 1000
+  },
+
+  chunkOverlap: {
+    type: Number,
+    default: 150
+  },
+},
   {
     timestamps: true,
   }
