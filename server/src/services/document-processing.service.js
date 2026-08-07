@@ -1,5 +1,6 @@
 import Source from "../models/Source.models.js";
 import { Chunk } from "../models/chunks.models.js";
+import { embedText } from "./embedding.service.js";
 
 export const processDocument = async (sourceId) => {
     //Find the source
@@ -19,9 +20,17 @@ export const processDocument = async (sourceId) => {
     if (chunks.length === 0) {
         throw new Error("No chunks found");
     }
-    console.log(`Processing ${source.title}`);
-    console.log(`Found ${chunks.length} chunks`);
-    return {
+    //Generate embedding for each chunk
+    const embeddings = [];
+    for (const chunk of chunks) {
+    const vector = await embedText(chunk.content);
+    embeddings.push({
+        chunkId: chunk._id,
+        vector,
+    });
+    }
+    
+return {
     source,
     chunks,
 };
