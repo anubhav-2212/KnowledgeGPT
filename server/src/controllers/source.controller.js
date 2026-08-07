@@ -5,7 +5,7 @@ import { extractPdfText } from '../services/extractors/pdf.service.js';
 import { extractWebsiteText } from '../services/extractors/website.service.js';
 import { createChunks } from '../services/chunking.service.js';
 import { Chunk } from '../models/chunks.models.js';
-import { enqueueDocumentProcessing } from '../services/document-processing.service.js';
+import { enqueueDocumentProcessing } from '../queues/queue.service.js';
 
 export const createTextSource = async (req, res) => {
   try {

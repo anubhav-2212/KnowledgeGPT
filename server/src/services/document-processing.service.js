@@ -1,16 +1,29 @@
-import { documentQueue } from "../queues/document-processing.queues.js";
-export const enqueueDocumentProcessing = async (sourceId) => {
-    await documentQueue.add(
-        "process-document",
-        { sourceId },
-        {
-            attempts: 3,
-            backoff: {
-                type: "exponential",
-                delay: 5000,
-            },
-            removeOnComplete: 100,
-            removeOnFail: 500,
-        }
-    );
+import Source from "../models/Source.models.js";
+import { Chunk } from "../models/chunks.models.js";
+
+export const processDocument = async (sourceId) => {
+    //Find the source
+    const source = await Source.findById(sourceId);
+    if (!source) {
+        throw new Error("Source not found");
+    }
+    //Updating the status of the document
+    source.status = "processing";
+    await source.save();
+    
+    //  Fetch all chunks
+    const chunks = await Chunk.find({
+        sourceId: source._id,
+    }).sort({ chunkIndex: 1 });
+    //Check if chunks are found
+    if (chunks.length === 0) {
+        throw new Error("No chunks found");
+    }
+    console.log(`Processing ${source.title}`);
+    console.log(`Found ${chunks.length} chunks`);
+    return {
+    source,
+    chunks,
+};
+
 };
