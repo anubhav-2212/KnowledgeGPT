@@ -1,6 +1,13 @@
-export class EmbeddingService {
-  async generateEmbedding(text) {
-    // TODO: Implement vector embedding generation
-    return [];
-  }
-}
+import "dotenv/config"
+import { GoogleGenAI } from "@google/genai";
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+});
+// generate embedding for text chunks
+export const embedText = async (text) => {
+  const response = await ai.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
+  });
+return response.embeddings[0].values
+};
