@@ -21,12 +21,17 @@ export const processDocument = async (sourceId) => {
         throw new Error("No chunks found");
     }
     //Generate embedding for each chunk
-    const embeddings = [];
+    const vectors = [];
     for (const chunk of chunks) {
-    const vector = await embedText(chunk.content);
-    embeddings.push({
-        chunkId: chunk._id,
-        vector,
+    const embeddingVector = await embedText(chunk.content);
+    vectors.push({
+        id: chunk._id.toString(),
+    payload: {
+        sourceId: source._id.toString(),
+        chunkIndex: chunk.chunkIndex,
+        content: chunk.content,
+    },
+        vector:embeddingVector,
     });
     }
     
