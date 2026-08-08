@@ -1,6 +1,7 @@
 import Source from "../models/Source.models.js";
 import { Chunk } from "../models/chunks.models.js";
 import { embedText } from "./embedding.service.js";
+import { upsertVectors, ensureCollection } from "./qdrant.service.js";
 
 export const processDocument = async (sourceId) => {
     //Find the source
@@ -26,14 +27,29 @@ export const processDocument = async (sourceId) => {
     const embeddingVector = await embedText(chunk.content);
     vectors.push({
         id: chunk._id.toString(),
+        vector: embeddingVector,
     payload: {
         sourceId: source._id.toString(),
+        knowledgeBaseId: source.knowledgeBaseId.toString(),
+        userId: source.userId.toString(),
         chunkIndex: chunk.chunkIndex,
         content: chunk.content,
+        sourceType:source.type,
+        sourceName:source.name,
     },
-        vector:embeddingVector,
+     
     });
     }
+    //Ensure collection exists in Qdrant
+    const vectorSize=vectors[0].vector.length;
+    await ensureCollection(vectorSize);
+    
+    //Upsert vectors into Qdrant
+    await upsertVectors(vectors);
+    
+    //Update source status to ready
+    source.status = "ready";
+    await source.save();
     
 return {
     source,
