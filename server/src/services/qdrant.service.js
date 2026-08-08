@@ -25,3 +25,16 @@ export const upsertVectors = async (vectors) => {
         points: vectors,
     });
 };
+
+export const searchVectors = async (queryVector, limit = 5) => {
+    return await qdrant.query(COLLECTION_NAME, {
+        query: queryVector,
+        limit,
+    });
+};
+
+export const deleteVectors = async (ids) => {
+    return await qdrant.delete(COLLECTION_NAME, {
+        points: ids,
+    });
+};
