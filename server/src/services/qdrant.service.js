@@ -1,4 +1,4 @@
-import { qdrant } from "../config/qdrant.js";
+import {qdrant} from "../utils/qdrant.js";
 
 const COLLECTION_NAME = "knowledge-base";
 

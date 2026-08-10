@@ -42,6 +42,7 @@ export const processDocument = async (sourceId) => {
     }
     //Ensure collection exists in Qdrant
     const vectorSize=vectors[0].vector.length;
+    console.log("Vector size: ",vectorSize);
     await ensureCollection(vectorSize);
     
     //Upsert vectors into Qdrant
