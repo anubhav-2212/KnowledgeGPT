@@ -27,10 +27,12 @@ export const upsertVectors = async (vectors) => {
 };
 
 export const searchVectors = async (queryVector, limit = 5) => {
-    return await qdrant.query(COLLECTION_NAME, {
+    const res=await qdrant.query(COLLECTION_NAME, {
         query: queryVector,
         limit,
+        with_payload: true,
     });
+    return res.points;
 };
 
 export const deleteVectors = async (ids) => {
