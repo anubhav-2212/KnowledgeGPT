@@ -2,6 +2,7 @@ import Source from "../models/Source.models.js";
 import { Chunk } from "../models/chunks.models.js";
 import { embedText } from "./embedding.service.js";
 import { upsertVectors, ensureCollection } from "./qdrant.service.js";
+import crypto from "crypto";
 
 export const processDocument = async (sourceId) => {
     //Find the source
@@ -26,23 +27,24 @@ export const processDocument = async (sourceId) => {
     for (const chunk of chunks) {
     const embeddingVector = await embedText(chunk.content);
     vectors.push({
-        id: chunk._id.toString(),
+        id: crypto.randomUUID(),
         vector: embeddingVector,
     payload: {
+        chunkID: chunk._id.toString(),
         sourceId: source._id.toString(),
         knowledgeBaseId: source.knowledgeBaseId.toString(),
         userId: source.userId.toString(),
         chunkIndex: chunk.chunkIndex,
         content: chunk.content,
-        sourceType:source.type,
-        sourceName:source.name,
+        sourceType:source.sourceType,
+        sourceName:source.sourceName,
     },
      
     });
     }
     //Ensure collection exists in Qdrant
     const vectorSize=vectors[0].vector.length;
-    console.log("Vector size: ",vectorSize);
+    
     await ensureCollection(vectorSize);
     
     //Upsert vectors into Qdrant
