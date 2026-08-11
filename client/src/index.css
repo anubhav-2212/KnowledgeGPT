@@ -1,90 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-folio-ground: #f8fbff;
+  --color-folio-accent: #3B82C4;
+  --color-folio-accent-hover: #296499;
+  --color-folio-border: rgba(204, 229, 255, 0.6);
+  --color-folio-text: #0d1117;
+  --color-folio-muted: #7a8799;
+  --color-folio-gradient-start: #f0f8ff;
+  --color-folio-gradient-end: #cce5ff;
+  --color-folio-focus-ring: rgba(59, 130, 196, 0.12);
+  
+  --font-serif: "DM Serif Display", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --shadow-input-focus: 0 0 0 3px var(--color-folio-focus-ring);
+}
+
 :root {
-  --text: #475569;
-  --text-h: #0f172a;
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --border: #e2e8f0;
-  --border-focus: #6366f1;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-light: #e0e7ff;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-
-  --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --heading: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-  font-family: var(--sans);
-  color-scheme: light dark;
-  color: var(--text);
-  background-color: var(--bg);
+  color: var(--color-folio-text);
+  background-color: var(--color-folio-ground);
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Force dark mode class on HTML or prefers-color-scheme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #94a3b8;
-    --text-h: #f8fafc;
-    --bg: #0b0f19;
-    --bg-card: #111827;
-    --border: #1f2937;
-    --border-focus: #818cf8;
-    --accent: #6366f1;
-    --accent-hover: #4f46e5;
-    --accent-light: #1e1b4b;
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-  }
-}
-
-/* Explicit class-based override */
-html.light {
-  --text: #475569;
-  --text-h: #0f172a;
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --border: #e2e8f0;
-  --border-focus: #6366f1;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-light: #e0e7ff;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-html.dark {
-  --text: #94a3b8;
-  --text-h: #f8fafc;
-  --bg: #0b0f19;
-  --bg-card: #111827;
-  --border: #1f2937;
-  --border-focus: #818cf8;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-light: #1e1b4b;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-}
-
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
   min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #root {
@@ -106,19 +53,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--color-folio-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text);
-}
-
-/* Hidden scrollbar helper */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  background: var(--color-folio-muted);
 }

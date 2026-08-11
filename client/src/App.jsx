@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import SourceManager from './components/SourceManager.jsx';
 import Chat from './components/Chat.jsx';
+import AuthPage from './pages/AuthPage.jsx';
 import { Sparkles, Activity } from 'lucide-react';
 import './App.css';
 
-function App() {
+function MainWorkspace() {
   const [serverMessage, setServerMessage] = useState('Connecting to Express backend...');
   const [isConnected, setIsConnected] = useState(false);
   
@@ -95,6 +97,16 @@ function App() {
 
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<MainWorkspace />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
