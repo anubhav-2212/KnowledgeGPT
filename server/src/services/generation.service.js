@@ -2,7 +2,7 @@ import { ai } from "../utils/gemini.js";
 
 export const generateAnswer = async (question, context) => {
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-flash-latest",
         contents: `
 You are an AI assistant answering questions based on the provided context.
 

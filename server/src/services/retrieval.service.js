@@ -5,6 +5,9 @@ export const retrieveRelevantChunks = async (question, limit = 5) => {
     const queryVector = await embedText(question);
 
     const results = await searchVectors(queryVector, limit);
+    const context = results
+        .map((result) => result.payload.content)
+        .join("\n\n");
 
-    return results;
+    return {results,context};
 };
