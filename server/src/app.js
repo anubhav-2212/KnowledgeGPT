@@ -5,6 +5,7 @@ import connectDB from './utils/mongoDb.js';
 import authRoutes from './routes/auth.routes.js';
 import kbRoutes from './routes/knowledgebase.routes.js';
 import sourceRoutes from './routes/source.routes.js';
+import chatRoutes from './routes/chat.routes.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/knowledge-base', kbRoutes);
 app.use('/api/v1/sources', sourceRoutes);
+app.use('/api/v1/chat', chatRoutes);
 
 connectDB();
 
