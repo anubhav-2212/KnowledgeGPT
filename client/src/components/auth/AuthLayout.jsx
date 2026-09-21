@@ -21,7 +21,7 @@ const LogoMark = () => (
         <line x1="8" y1="11" x2="13" y2="11"/>
       </svg>
     </div>
-    <span className="font-semibold text-[15px] tracking-tight text-[#0d1117]">Folio</span>
+    <span className="font-semibold text-[15px] tracking-tight text-[#0d1117]">KnowledgeGPT</span>
   </div>
 );
 
@@ -72,7 +72,7 @@ export default function AuthLayout({ children }) {
             </h1>
 
             <p className="text-[#7a8799] text-[15px] mb-10 max-w-[380px] leading-[1.65]">
-              Folio transforms scattered sources into a single connected workspace — ask questions, surface insights, write faster.
+              KnowledgeGPT transforms scattered sources into a single connected workspace — ask questions, surface insights, write faster.
             </p>
 
             <ul className="space-y-[14px]">
@@ -92,10 +92,10 @@ export default function AuthLayout({ children }) {
               style={{ borderLeft: '2px solid #3B82C4' }}
             >
               <p className="text-[#3a4a55] italic text-[13.5px] leading-relaxed mb-2">
-                "Folio completely changed how I organise my literature reviews. It's like having a brilliant research assistant available 24/7."
+                "KnowledgeGPT completely changed how I organise my literature reviews. It's like having a brilliant research assistant available 24/7."
               </p>
               <footer className="text-[12.5px] font-medium text-[#7a8799]">
-                — Dr. Sarah Chen, Cognitive Scientist
+                — Anubhav Srivastva, AI Researcher
               </footer>
             </div>
           </blockquote>
