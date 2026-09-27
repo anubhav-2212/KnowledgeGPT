@@ -1,20 +1,18 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Auth
-import AuthLayout from "./layouts/AuthLayout";
-import AuthForms from "./components/auth/AuthForms";
+
 
 // Pages
 import Home from "./pages/Home";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import KnowledgeBaseDetails from "./pages/KnowledgeBaseDetails";
 import Chat from "./pages/Chat";
-
+import AuthPage from "./pages/AuthPage";
 
 const App = () => {
     return (
-        <BrowserRouter>
+      
             <Routes>
 
                 {/* -------------------------------- */}
@@ -60,7 +58,7 @@ const App = () => {
                 />
 
             </Routes>
-        </BrowserRouter>
+       
     );
 };
 

@@ -93,16 +93,17 @@ const AuthForms = () => {
             setValidationError(validationMessage);
             return;
         }
+        let result;
 
         if (isLogin) {
-            await dispatch(
+            result= await dispatch(
                 login({
                     email: formData.email.trim(),
                     password: formData.password,
                 })
             );
         } else {
-            await dispatch(
+            result= await dispatch(
                 register({
                     name: formData.name.trim(),
                     email: formData.email.trim(),
@@ -110,6 +111,8 @@ const AuthForms = () => {
                 })
             );
         }
+        console.log("AUTH RESULT:", result);
+console.log("IS LOGIN FULFILLED:", login.fulfilled.match(result));
         // If login or register is successful, navigate to home
            if (
         login.fulfilled.match(result) ||
