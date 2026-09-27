@@ -2,7 +2,7 @@ import React from 'react';
 
 /* ─── Left panel decorative icons ───────────────────────── */
 const CheckCircleIcon = () => (
-  <svg className="w-[18px] h-[18px] flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="none">
+  <svg className="w-4.5 h-4.5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="none">
     <circle cx="10" cy="10" r="9.25" fill="#3B82C4" fillOpacity="0.12" stroke="#3B82C4" strokeWidth="0.5"/>
     <path d="M6.5 10.25l2.4 2.5 4.6-5" stroke="#3B82C4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
@@ -21,7 +21,7 @@ const LogoMark = () => (
         <line x1="8" y1="11" x2="13" y2="11"/>
       </svg>
     </div>
-    <span className="font-semibold text-[15px] tracking-tight text-[#0d1117]">KnowledgeGPT</span>
+    <span className="font-semibold text-[15px] tracking-tight text-folio-text">KnowledgeGPT</span>
   </div>
 );
 
@@ -39,7 +39,7 @@ export default function AuthLayout({ children }) {
 
       {/* ── Left Panel ──────────────────────────────────── */}
       <div
-        className="hidden min-[900px]:flex flex-col relative w-[46%] max-w-[560px] overflow-hidden border-r"
+        className="hidden min-[900px]:flex flex-col relative w-[46%] max-w-140 overflow-hidden border-r"
         style={{
           background: 'linear-gradient(145deg, #f0f8ff 0%, #cce5ff 100%)',
           borderColor: 'rgba(204,229,255,0.8)',
@@ -47,12 +47,12 @@ export default function AuthLayout({ children }) {
       >
         {/* Orb 1 — top left */}
         <div
-          className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full pointer-events-none"
+          className="absolute -top-24 -left-24 w-105 h-105 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.65) 0%, transparent 70%)' }}
         />
         {/* Orb 2 — bottom right */}
         <div
-          className="absolute -bottom-32 -right-20 w-[380px] h-[380px] rounded-full pointer-events-none"
+          className="absolute -bottom-32 -right-20 w-95 h-95 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(59,130,196,0.10) 0%, transparent 70%)' }}
         />
 
@@ -61,21 +61,21 @@ export default function AuthLayout({ children }) {
             <LogoMark />
 
             <h1
-              className="text-[38px] lg:text-[42px] leading-[1.22] mb-6 text-[#0d1117] tracking-[-0.02em]"
+              className="text-[38px] lg:text-[42px] leading-[1.22] mb-6 text-folio-text tracking-[-0.02em]"
               style={{ fontFamily: '"DM Serif Display", serif' }}
             >
               Your research,{' '}
               <br />
-              <em className="not-italic italic" style={{ color: '#3B82C4' }}>
+              <em className="not-italic" style={{ color: '#3B82C4' }}>
                 deeply understood.
               </em>
             </h1>
 
-            <p className="text-[#7a8799] text-[15px] mb-10 max-w-[380px] leading-[1.65]">
+            <p className="text-folio-muted text-[15px] mb-10 max-w-95 leading-[1.65]">
               KnowledgeGPT transforms scattered sources into a single connected workspace — ask questions, surface insights, write faster.
             </p>
 
-            <ul className="space-y-[14px]">
+            <ul className="space-y-[14.5px]">
               {FEATURES.map((f) => (
                 <li key={f} className="flex items-start gap-3 text-[14px] text-[#3a4a55] leading-snug">
                   <CheckCircleIcon />
@@ -94,7 +94,7 @@ export default function AuthLayout({ children }) {
               <p className="text-[#3a4a55] italic text-[13.5px] leading-relaxed mb-2">
                 "KnowledgeGPT completely changed how I organise my literature reviews. It's like having a brilliant research assistant available 24/7."
               </p>
-              <footer className="text-[12.5px] font-medium text-[#7a8799]">
+              <footer className="text-[12.5px] font-medium text-folio-muted">
                 — Anubhav Srivastva, AI Researcher
               </footer>
             </div>

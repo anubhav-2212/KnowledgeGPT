@@ -1,14 +1,11 @@
-import { axios } from 'axios';
+import axios from "axios";
 
-export const Api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
-    
+const Api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     },
-    withCredentials: true
-
+    withCredentials: true,
 });
 
 export default Api;
-

@@ -272,7 +272,7 @@ export default function Chat({ sources }) {
       </div>
 
       {/* Main Chat Flow Area */}
-      <div className="flex-grow overflow-y-auto p-6 space-y-6">
+      <div className="grow overflow-y-auto p-6 space-y-6">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12">
             <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-600 mb-6">
