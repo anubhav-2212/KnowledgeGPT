@@ -13,8 +13,8 @@ const generateToken = (userId) => {
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
+   
+    if (!name.trim() || !email.trim() || !password) {
       return res.status(400).json({ error: 'Please provide name, email, and password.' });
     }
 
@@ -51,8 +51,7 @@ export const registerUser = async (req, res) => {
         id: savedUser._id,
         name: savedUser.name,
         email: savedUser.email
-      },
-      token
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -94,8 +93,7 @@ export const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email
-      },
-      token
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -110,7 +108,6 @@ export const logoutUser = (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
