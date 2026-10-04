@@ -9,7 +9,6 @@ import { streamChatQuery } from "../Api/chat.api";
 import {
     Send,
     Bot,
-    User,
     Sparkles,
     Database,
     BookOpen,
@@ -26,7 +25,6 @@ import {
     Globe,
     FileUp,
     AlertCircle,
-    Info,
 } from "lucide-react";
 
 export default function Chat() {
