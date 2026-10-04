@@ -27,23 +27,33 @@ export const upsertVectors = async (vectors) => {
     });
 };
 
-export const searchVectors = async (queryVector, knowledgeBaseId,limit = 5) => {
-    const res=await qdrant.query(COLLECTION_NAME, {
-        query: queryVector,
-        limit,
-        with_payload: true,
-        filter: {
-            must: [
-                {
-                    key: "knowledgeBaseId",
-                    match: {
-                        value: knowledgeBaseId,
+export const searchVectors = async (queryVector, knowledgeBaseId, limit = 5) => {
+    try {
+        const exists = await qdrant.collectionExists(COLLECTION_NAME);
+        if (!exists.exists) {
+            return [];
+        }
+
+        const res = await qdrant.query(COLLECTION_NAME, {
+            query: queryVector,
+            limit,
+            with_payload: true,
+            filter: {
+                must: [
+                    {
+                        key: "knowledgeBaseId",
+                        match: {
+                            value: knowledgeBaseId.toString(),
+                        },
                     },
-                },
-            ],
-        },
-    });
-    return res.points;
+                ],
+            },
+        });
+        return res.points || [];
+    } catch (error) {
+        console.error("searchVectors error:", error.message);
+        return [];
+    }
 };
 
 export const deleteVectors = async (ids) => {
