@@ -12,3 +12,7 @@ export const getKnowledgeBaseById = (id) => {
 export const createKnowledgeBase = (data) => {
     return api.post("/knowledge-base", data);
 };
+
+export const deleteKnowledgeBase = (id) => {
+    return api.delete(`/knowledge-base/${id}`);
+};

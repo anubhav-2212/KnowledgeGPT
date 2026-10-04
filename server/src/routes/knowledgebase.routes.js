@@ -3,7 +3,8 @@ import { auth } from '../middleware/auth.middleware.js';
 import {
   createKnowledgeBase,
   getKnowledgeBases,
-  getKnowledgeBaseById
+  getKnowledgeBaseById,
+  deleteKnowledgeBase
 } from '../controllers/kb.controller.js';
 
 const kbRoutes = Router();
@@ -12,5 +13,6 @@ const kbRoutes = Router();
 kbRoutes.post('/', auth, createKnowledgeBase);
 kbRoutes.get('/', auth, getKnowledgeBases);
 kbRoutes.get('/:id', auth, getKnowledgeBaseById);
+kbRoutes.delete('/:id', auth, deleteKnowledgeBase);
 
 export default kbRoutes;

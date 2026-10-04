@@ -1,400 +1,495 @@
-import { useState, useRef } from 'react';
-import { 
-  FileText, 
-  Globe, 
-  FileUp, 
-  Trash2, 
-  Plus, 
-  Clock, 
-  Loader2, 
-  CheckCircle, 
-  AlertCircle,
-  FileCode
-} from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    uploadPdfSource,
+    addWebsiteSource,
+    addTextSource,
+    deleteSource,
+    fetchSources,
+} from "../store/thunks/knowledgeBase.thunks";
+import {
+    FileText,
+    Globe,
+    FileUp,
+    Trash2,
+    Plus,
+    Clock,
+    Loader2,
+    CheckCircle2,
+    AlertCircle,
+    Files,
+    RefreshCw,
+    ExternalLink,
+    Layers,
+} from "lucide-react";
 
-export default function SourceManager({ sources, onAddSource, onDeleteSource }) {
-  const [activeTab, setActiveTab] = useState('pdf');
-  
-  // Tab states
-  const [dragActive, setDragActive] = useState(false);
-  const [urlInput, setUrlInput] = useState('');
-  const [textTitle, setTextTitle] = useState('');
-  const [textContent, setTextContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+export default function SourceManager({ knowledgeBaseId }) {
+    const dispatch = useDispatch();
+    const { sources, isSourcesLoading, isAddingSource, sourceError } = useSelector(
+        (state) => state.knowledgeBase
+    );
 
-  const fileInputRef = useRef(null);
+    const [activeTab, setActiveTab] = useState("pdf");
+    const [dragActive, setDragActive] = useState(false);
+    const [urlInput, setUrlInput] = useState("");
+    const [textTitle, setTextTitle] = useState("");
+    const [textContent, setTextContent] = useState("");
+    const [localError, setLocalError] = useState("");
+    const [deletingId, setDeletingId] = useState(null);
 
-  // Tab selections
-  const tabs = [
-    { id: 'pdf', label: 'PDF Upload', icon: FileUp },
-    { id: 'url', label: 'Website URL', icon: Globe },
-    { id: 'text', label: 'Text Input', icon: FileText },
-  ];
+    const fileInputRef = useRef(null);
 
-  // Drag and drop handlers
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
+    const tabs = [
+        { id: "pdf", label: "PDF Document", icon: FileUp },
+        { id: "website", label: "Website URL", icon: Globe },
+        { id: "text", label: "Raw Text", icon: FileText },
+    ];
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFiles(e.target.files);
-    }
-  };
-
-  // Process File upload
-  const handleFiles = (filesList) => {
-    const file = filesList[0];
-    if (file.type !== "application/pdf") {
-      setErrorMessage("Please upload a PDF file only.");
-      return;
-    }
-    
-    setErrorMessage("");
-    setIsSubmitting(true);
-
-    // Simulate file reading and uploading process
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const textMock = e.target.result ? `Simulated content from PDF: ${file.name}` : "";
-      
-      // Simulate indexing latency
-      setTimeout(() => {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        const newSource = {
-          id: `pdf-${Date.now()}`,
-          title: file.name,
-          type: 'pdf',
-          content: textMock || `Content of PDF: ${file.name}. This is an indexed PDF containing structural documentation.`,
-          status: 'indexed',
-          size: `${sizeMB} MB`,
-          date: new Date().toLocaleDateString(),
-        };
-        onAddSource(newSource);
-        setIsSubmitting(false);
-      }, 1500);
+    // Drag handlers
+    const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
     };
-    reader.readAsText(file);
-  };
 
-  // Process URL import
-  const handleUrlSubmit = (e) => {
-    e.preventDefault();
-    if (!urlInput.trim()) return;
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
 
-    // Simple URL validation
-    let formattedUrl = urlInput.trim();
-    if (!/^https?:\/\//i.test(formattedUrl)) {
-      formattedUrl = `https://${formattedUrl}`;
-    }
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handlePdfFile(e.dataTransfer.files[0]);
+        }
+    };
 
-    try {
-      new URL(formattedUrl);
-    } catch {
-      setErrorMessage("Please enter a valid website URL.");
-      return;
-    }
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handlePdfFile(e.target.files[0]);
+        }
+    };
 
-    setErrorMessage("");
-    setIsSubmitting(true);
+    const handlePdfFile = async (file) => {
+        if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+            setLocalError("Please select a PDF file (.pdf).");
+            return;
+        }
 
-    // Simulate web crawler indexing
-    setTimeout(() => {
-      const urlObj = new URL(formattedUrl);
-      const newSource = {
-        id: `url-${Date.now()}`,
-        title: urlObj.hostname + (urlObj.pathname.length > 1 ? urlObj.pathname : ""),
-        type: 'url',
-        content: `Simulated crawled website content from ${formattedUrl}. This webpage details terms of service, technical documentations, and general guidelines.`,
-        status: 'indexed',
-        size: formattedUrl,
-        date: new Date().toLocaleDateString(),
-      };
-      onAddSource(newSource);
-      setUrlInput('');
-      setIsSubmitting(false);
-    }, 1500);
-  };
+        setLocalError("");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("knowledgeBaseId", knowledgeBaseId);
 
-  // Process manual Text save
-  const handleTextSubmit = (e) => {
-    e.preventDefault();
-    if (!textTitle.trim() || !textContent.trim()) {
-      setErrorMessage("Please provide both a title and text content.");
-      return;
-    }
+        try {
+            await dispatch(uploadPdfSource(formData)).unwrap();
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        } catch (err) {
+            console.error("PDF upload failed:", err);
+        }
+    };
 
-    setErrorMessage("");
-    setIsSubmitting(true);
+    const handleUrlSubmit = async (e) => {
+        e.preventDefault();
+        let trimmedUrl = urlInput.trim();
+        if (!trimmedUrl) return;
 
-    setTimeout(() => {
-      const newSource = {
-        id: `text-${Date.now()}`,
-        title: textTitle.trim(),
-        type: 'text',
-        content: textContent.trim(),
-        status: 'indexed',
-        size: `${textContent.trim().length} chars`,
-        date: new Date().toLocaleDateString(),
-      };
-      onAddSource(newSource);
-      setTextTitle('');
-      setTextContent('');
-      setIsSubmitting(false);
-    }, 1000);
-  };
+        if (!/^https?:\/\//i.test(trimmedUrl)) {
+            trimmedUrl = `https://${trimmedUrl}`;
+        }
 
-  return (
-    <div className="flex flex-col h-full bg-slate-50/70 dark:bg-slate-900/60 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
-      {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <FileCode className="w-5 h-5 text-indigo-500" />
-          Knowledge Sources
-        </h2>
-        <span className="px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400">
-          {sources.length} active
-        </span>
-      </div>
+        try {
+            new URL(trimmedUrl);
+        } catch {
+            setLocalError("Please enter a valid website URL.");
+            return;
+        }
 
-      {/* Tabs list */}
-      <div className="px-4 pt-4 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex space-x-1 p-1 bg-slate-200/60 dark:bg-slate-950/40 rounded-xl">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setErrorMessage("");
-                }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-lg transition-all-custom ${
-                  isActive
-                    ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            );
-          })}
+        setLocalError("");
+        try {
+            await dispatch(
+                addWebsiteSource({
+                    knowledgeBaseId,
+                    url: trimmedUrl,
+                })
+            ).unwrap();
+            setUrlInput("");
+        } catch (err) {
+            console.error("Website source import failed:", err);
+        }
+    };
+
+    const handleTextSubmit = async (e) => {
+        e.preventDefault();
+        const content = textContent.trim();
+        if (!content) {
+            setLocalError("Please provide content for this text source.");
+            return;
+        }
+
+        setLocalError("");
+        try {
+            await dispatch(
+                addTextSource({
+                    knowledgeBaseId,
+                    content,
+                })
+            ).unwrap();
+            setTextTitle("");
+            setTextContent("");
+        } catch (err) {
+            console.error("Text source creation failed:", err);
+        }
+    };
+
+    const handleDeleteSource = async (sourceId) => {
+        setDeletingId(sourceId);
+        try {
+            await dispatch(deleteSource(sourceId)).unwrap();
+        } catch (err) {
+            console.error("Failed to delete source:", err);
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    const handleRefresh = () => {
+        if (knowledgeBaseId) {
+            dispatch(fetchSources(knowledgeBaseId));
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+        try {
+            return new Date(dateString).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+            });
+        } catch {
+            return dateString;
+        }
+    };
+
+    const getSourceIcon = (type) => {
+        switch (type) {
+            case "pdf":
+                return <FileUp size={18} className="text-red-500" />;
+            case "website":
+                return <Globe size={18} className="text-blue-500" />;
+            default:
+                return <FileText size={18} className="text-emerald-500" />;
+        }
+    };
+
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case "ready":
+                return (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 size={12} className="text-emerald-500" />
+                        Ready
+                    </span>
+                );
+            case "failed":
+                return (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 border border-red-200">
+                        <AlertCircle size={12} className="text-red-500" />
+                        Failed
+                    </span>
+                );
+            default:
+                return (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 border border-amber-200">
+                        <Loader2 size={12} className="animate-spin text-amber-600" />
+                        {status || "Processing"}
+                    </span>
+                );
+        }
+    };
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Add Source Card (Left/Top) */}
+            <div className="lg:col-span-5 flex flex-col rounded-2xl border border-[#e5e7eb] bg-white shadow-xs">
+                {/* Header */}
+                <div className="border-b border-[#f1f5f9] p-5">
+                    <h2 className="text-base font-semibold text-[#263238] flex items-center gap-2">
+                        <Plus size={18} className="text-[#3275b3]" />
+                        Add New Source
+                    </h2>
+                    <p className="mt-1 text-xs text-[#64748b]">
+                        Choose a source type to ingest and vectorize into this knowledge base.
+                    </p>
+                </div>
+
+                {/* Tabs */}
+                <div className="p-4 border-b border-[#f1f5f9]">
+                    <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-slate-100 p-1">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveTab(tab.id);
+                                        setLocalError("");
+                                    }}
+                                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-all ${
+                                        isActive
+                                            ? "bg-white text-[#3275b3] shadow-xs"
+                                            : "text-[#64748b] hover:text-[#263238]"
+                                    }`}
+                                >
+                                    <Icon size={14} />
+                                    <span>{tab.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Tab Content */}
+                <div className="p-5 flex-1">
+                    {(localError || sourceError) && (
+                        <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+                            <AlertCircle size={15} className="shrink-0" />
+                            <span>{localError || sourceError}</span>
+                        </div>
+                    )}
+
+                    {/* PDF Upload */}
+                    {activeTab === "pdf" && (
+                        <div
+                            onDragEnter={handleDrag}
+                            onDragOver={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDrop={handleDrop}
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`flex min-h-[220px] flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
+                                dragActive
+                                    ? "border-[#3275b3] bg-[#eaf3fb]/40"
+                                    : "border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-50"
+                            }`}
+                        >
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                onChange={handleFileChange}
+                                disabled={isAddingSource}
+                            />
+                            {isAddingSource ? (
+                                <div className="flex flex-col items-center gap-2.5">
+                                    <Loader2 size={32} className="animate-spin text-[#3275b3]" />
+                                    <p className="text-sm font-medium text-[#263238]">
+                                        Uploading & processing PDF...
+                                    </p>
+                                    <p className="text-xs text-[#64748b]">
+                                        Extracting text and generating embeddings
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf3fb] text-[#3275b3] mb-3">
+                                        <FileUp size={24} />
+                                    </div>
+                                    <p className="text-sm font-semibold text-[#263238]">
+                                        Click to upload or drag & drop PDF
+                                    </p>
+                                    <p className="mt-1 text-xs text-[#64748b]">
+                                        PDF files up to 50MB supported
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Website Import */}
+                    {activeTab === "website" && (
+                        <form onSubmit={handleUrlSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-1.5">
+                                    Website URL
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="https://docs.example.com/guide"
+                                    value={urlInput}
+                                    onChange={(e) => setUrlInput(e.target.value)}
+                                    disabled={isAddingSource}
+                                    className="w-full rounded-xl border border-[#e5e7eb] px-3.5 py-2.5 text-sm text-[#263238] placeholder-slate-400 focus:border-[#3275b3] focus:outline-none focus:ring-2 focus:ring-[#3275b3]/20 disabled:bg-slate-50"
+                                />
+                            </div>
+
+                            <p className="text-xs text-[#64748b]">
+                                Scrapes web page text and stores chunked embeddings for this knowledge base.
+                            </p>
+
+                            <button
+                                type="submit"
+                                disabled={isAddingSource || !urlInput.trim()}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3275b3] py-2.5 text-xs font-medium text-white shadow-xs hover:bg-[#28699f] transition-colors disabled:opacity-50"
+                            >
+                                {isAddingSource && <Loader2 size={14} className="animate-spin" />}
+                                <span>{isAddingSource ? "Scraping & Indexing..." : "Import Website"}</span>
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Raw Text */}
+                    {activeTab === "text" && (
+                        <form onSubmit={handleTextSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-1.5">
+                                    Text Content
+                                </label>
+                                <textarea
+                                    placeholder="Paste or write notes, guidelines, or reference text here..."
+                                    rows={5}
+                                    value={textContent}
+                                    onChange={(e) => setTextContent(e.target.value)}
+                                    disabled={isAddingSource}
+                                    className="w-full resize-none rounded-xl border border-[#e5e7eb] px-3.5 py-2.5 text-sm text-[#263238] placeholder-slate-400 focus:border-[#3275b3] focus:outline-none focus:ring-2 focus:ring-[#3275b3]/20 disabled:bg-slate-50"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs text-[#64748b]">
+                                <span>{textContent.trim().length} characters</span>
+                                <button
+                                    type="submit"
+                                    disabled={isAddingSource || !textContent.trim()}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-[#3275b3] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#28699f] transition-colors disabled:opacity-50"
+                                >
+                                    {isAddingSource && <Loader2 size={14} className="animate-spin" />}
+                                    <span>{isAddingSource ? "Processing..." : "Add Text Source"}</span>
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+
+            {/* Sources List Card (Right/Bottom) */}
+            <div className="lg:col-span-7 flex flex-col rounded-2xl border border-[#e5e7eb] bg-white shadow-xs">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-[#f1f5f9] p-5">
+                    <div className="flex items-center gap-2.5">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                            <Files size={18} />
+                        </div>
+                        <div>
+                            <h2 className="text-base font-semibold text-[#263238]">
+                                Knowledge Sources
+                            </h2>
+                            <p className="text-xs text-[#64748b]">
+                                {sources.length} total {sources.length === 1 ? "source" : "sources"} indexed
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        title="Refresh Sources"
+                        disabled={isSourcesLoading}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-[#e5e7eb] bg-white px-3 py-1.5 text-xs font-medium text-[#64748b] hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                        <RefreshCw size={13} className={isSourcesLoading ? "animate-spin text-[#3275b3]" : ""} />
+                        <span>Refresh</span>
+                    </button>
+                </div>
+
+                {/* Sources list */}
+                <div className="p-5 flex-1 overflow-y-auto max-h-[550px]">
+                    {isSourcesLoading && sources.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                            <Loader2 size={28} className="animate-spin text-[#3275b3] mb-2" />
+                            <p className="text-xs">Loading sources...</p>
+                        </div>
+                    ) : sources.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-center text-[#64748b]">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 mb-3">
+                                <Files size={24} />
+                            </div>
+                            <p className="text-sm font-semibold text-[#263238]">
+                                No sources added yet
+                            </p>
+                            <p className="mt-1 max-w-xs text-xs text-[#64748b]">
+                                Upload a PDF document, import a website URL, or paste custom text to add knowledge.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {sources.map((source) => (
+                                <div
+                                    key={source._id}
+                                    className="group flex items-start justify-between gap-3 rounded-xl border border-[#e5e7eb] bg-[#f8fafc] p-4 transition-all hover:border-[#cbd5e1] hover:bg-white hover:shadow-xs"
+                                >
+                                    <div className="flex items-start gap-3 min-w-0">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-[#e5e7eb] shadow-2xs">
+                                            {getSourceIcon(source.sourceType)}
+                                        </div>
+
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="text-sm font-semibold text-[#263238] truncate max-w-sm">
+                                                    {source.sourceName || source.sourceUrl || "Document Source"}
+                                                </h4>
+                                                {source.sourceUrl && (
+                                                    <a
+                                                        href={source.sourceUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-slate-400 hover:text-[#3275b3]"
+                                                        title="Open URL"
+                                                    >
+                                                        <ExternalLink size={13} />
+                                                    </a>
+                                                )}
+                                            </div>
+
+                                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[#64748b]">
+                                                {getStatusBadge(source.status)}
+
+                                                <span className="flex items-center gap-1 font-mono text-[11px] text-slate-500">
+                                                    <Layers size={12} className="text-slate-400" />
+                                                    {source.totalChunks || 0} chunks
+                                                </span>
+
+                                                <span className="flex items-center gap-1 text-[11px]">
+                                                    <Clock size={12} className="text-slate-400" />
+                                                    {formatDate(source.createdAt)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteSource(source._id)}
+                                        disabled={deletingId === source._id}
+                                        title="Delete Source"
+                                        className="shrink-0 rounded-lg p-2 text-slate-400 opacity-60 transition-all hover:bg-red-50 hover:text-red-600 hover:opacity-100 disabled:opacity-40"
+                                    >
+                                        {deletingId === source._id ? (
+                                            <Loader2 size={16} className="animate-spin text-red-500" />
+                                        ) : (
+                                            <Trash2 size={16} />
+                                        )}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-      </div>
-
-      {/* Tab Panels */}
-      <div className="p-5 border-b border-slate-200 dark:border-slate-800">
-        {errorMessage && (
-          <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Tab: PDF */}
-        {activeTab === 'pdf' && (
-          <div
-            onDragEnter={handleDrag}
-            onDragOver={handleDrag}
-            onDragLeave={handleDrag}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all-custom flex flex-col items-center justify-center ${
-              dragActive 
-                ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/10' 
-                : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-100/30 dark:hover:bg-slate-800/10'
-            }`}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={isSubmitting}
-            />
-            {isSubmitting ? (
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Uploading and indexing PDF...</p>
-              </div>
-            ) : (
-              <>
-                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-500 dark:text-indigo-400 mb-3">
-                  <FileUp className="w-5 h-5" />
-                </div>
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                  Drag & drop PDF here
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  or click to upload from local machine
-                </p>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Tab: URL */}
-        {activeTab === 'url' && (
-          <form onSubmit={handleUrlSubmit} className="space-y-3">
-            <div className="flex gap-2">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  placeholder="example.com/documentation"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={isSubmitting}
-                  className="w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting || !urlInput.trim()}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-150 flex items-center justify-center gap-1.5 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                Import
-              </button>
-            </div>
-            <p className="text-[10px] text-slate-400">
-              Scrapes content from public web URLs and indexes it directly into KnowledgeGPT.
-            </p>
-          </form>
-        )}
-
-        {/* Tab: Text Input */}
-        {activeTab === 'text' && (
-          <form onSubmit={handleTextSubmit} className="space-y-3">
-            <input
-              type="text"
-              placeholder="Source Title (e.g. Project Notes)"
-              value={textTitle}
-              onChange={(e) => setTextTitle(e.target.value)}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-            />
-            <textarea
-              placeholder="Paste or write your raw custom knowledge content here..."
-              rows={4}
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none disabled:opacity-50"
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-slate-400">
-                {textContent.trim().length} characters
-              </span>
-              <button
-                type="submit"
-                disabled={isSubmitting || !textTitle.trim() || !textContent.trim()}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-150 flex items-center justify-center gap-1.5 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                Save Knowledge
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* Sources List */}
-      <div className="flex-grow overflow-y-auto p-5 space-y-3">
-        <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-          Indexed Documents
-        </h3>
-
-        {sources.length === 0 ? (
-          <div className="text-center py-10 px-4">
-            <p className="text-sm text-slate-400">No sources uploaded yet.</p>
-            <p className="text-[11px] text-slate-400/80 mt-1">Upload a PDF, link a website, or paste text to build your knowledge base.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {sources.map((source) => {
-              const SourceIcon = source.type === 'pdf' ? FileText : (source.type === 'url' ? Globe : FileText);
-              return (
-                <div
-                  key={source.id}
-                  className="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 shadow-sm hover:shadow transition-shadow flex items-start justify-between gap-3 group"
-                >
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className={`p-2 rounded-lg shrink-0 ${
-                      source.type === 'pdf' 
-                        ? 'bg-rose-500/10 text-rose-500' 
-                        : (source.type === 'url' ? 'bg-sky-500/10 text-sky-500' : 'bg-emerald-500/10 text-emerald-500')
-                    }`}>
-                      <SourceIcon className="w-4.5 h-4.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">
-                        {source.title}
-                      </h4>
-                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          {source.date}
-                        </span>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                          {source.size}
-                        </span>
-                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase tracking-wider ${
-                          source.status === 'indexed'
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : (source.status === 'failed' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400')
-                        }`}>
-                          {source.status === 'indexed' ? (
-                            <CheckCircle className="w-3 h-3 text-emerald-500" />
-                          ) : (
-                            <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
-                          )}
-                          {source.status}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => onDeleteSource(source.id)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-150 self-start"
-                    title="Delete source"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 }

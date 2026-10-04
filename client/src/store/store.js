@@ -1,8 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
+import knowledgeBaseReducer from './slices/knowledgeBaseSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    knowledgeBase: knowledgeBaseReducer,
   },
 });
+

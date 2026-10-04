@@ -1,4 +1,6 @@
 import { KnowledgeBase } from '../models/KnowledgeBase.models.js';
+import Source from '../models/Source.models.js';
+import { Chunk } from '../models/chunks.models.js';
 
 export const createKnowledgeBase = async (req, res) => {
   try {
@@ -33,7 +35,7 @@ export const getKnowledgeBases = async (req, res) => {
     // Return only the knowledge bases belonging to the authenticated user
     const userId = req.user.id;
 
-    const kbs = await KnowledgeBase.find({ userId });
+    const kbs = await KnowledgeBase.find({ userId }).sort({ createdAt: -1 });
     res.status(200).json({ data: kbs });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -53,6 +55,29 @@ export const getKnowledgeBaseById = async (req, res) => {
     }
 
     res.status(200).json({ data: kb });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteKnowledgeBase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const kb = await KnowledgeBase.findOneAndDelete({ _id: id, userId });
+    if (!kb) {
+      return res.status(404).json({ error: 'Knowledge base not found' });
+    }
+
+    // Clean up associated sources and chunks
+    await Chunk.deleteMany({ knowledgeBaseId: id });
+    await Source.deleteMany({ knowledgeBaseId: id });
+
+    res.status(200).json({
+      message: 'Knowledge base deleted successfully',
+      data: kb
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
