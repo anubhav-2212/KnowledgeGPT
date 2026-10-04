@@ -135,6 +135,7 @@ export default function SourceManager({ knowledgeBaseId }) {
                 addTextSource({
                     knowledgeBaseId,
                     content,
+                    title: textTitle.trim(),
                 })
             ).unwrap();
             setTextTitle("");
@@ -348,14 +349,29 @@ export default function SourceManager({ knowledgeBaseId }) {
                         <form onSubmit={handleTextSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-1.5">
-                                    Text Content
+                                    Source Title <span className="text-slate-400 font-normal lowercase">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g., API Reference, Project Rules, Summary"
+                                    value={textTitle}
+                                    onChange={(e) => setTextTitle(e.target.value)}
+                                    disabled={isAddingSource}
+                                    className="w-full rounded-xl border border-[#e5e7eb] px-3.5 py-2 text-sm text-[#263238] placeholder-slate-400 focus:border-[#3275b3] focus:outline-none focus:ring-2 focus:ring-[#3275b3]/20 disabled:bg-slate-50"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748b] mb-1.5">
+                                    Text Content <span className="text-red-500">*</span>
                                 </label>
                                 <textarea
                                     placeholder="Paste or write notes, guidelines, or reference text here..."
-                                    rows={5}
+                                    rows={4}
                                     value={textContent}
                                     onChange={(e) => setTextContent(e.target.value)}
                                     disabled={isAddingSource}
+                                    required
                                     className="w-full resize-none rounded-xl border border-[#e5e7eb] px-3.5 py-2.5 text-sm text-[#263238] placeholder-slate-400 focus:border-[#3275b3] focus:outline-none focus:ring-2 focus:ring-[#3275b3]/20 disabled:bg-slate-50"
                                 />
                             </div>

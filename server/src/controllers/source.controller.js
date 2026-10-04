@@ -38,7 +38,7 @@ export const createTextSource = async (req, res) => {
       knowledgeBaseId,
       userId: req.user.id,
       sourceType: 'text',
-      sourceName: 'Text Source',
+      sourceName: req.body.title?.trim() || 'Text Source',
       extractedText: content.trim(),
       status: 'ready',
     });

@@ -19,7 +19,7 @@ import {
     Layers,
 } from "lucide-react";
 
-export default function AppLayout({ children, activePage = "dashboard", title = "Dashboard" }) {
+export default function AppLayout({ children, title = "Dashboard" }) {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();

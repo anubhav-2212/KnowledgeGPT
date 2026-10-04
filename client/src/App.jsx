@@ -1,7 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Home";
@@ -12,41 +10,20 @@ import AuthPage from "./pages/AuthPage";
 
 const App = () => {
     return (
-      
-            <Routes>
+        <Routes>
+            {/* -------------------------------- */}
+            {/* Authentication */}
+            {/* -------------------------------- */}
+            <Route path="/auth" element={<AuthPage />} />
 
-                {/* -------------------------------- */}
-                {/* Authentication */}
-                {/* -------------------------------- */}
-
-                <Route
-                    path="/auth"
-                    element={<AuthPage />}
-                />
-
-                {/* -------------------------------- */}
-                {/* Main Application */}
-                {/* -------------------------------- */}
-
-                <Route
-                    path="/"
-                    element={<Home />}
-                />
-
-                <Route
-                    path="/knowledge-base"
-                    element={<KnowledgeBase />}
-                />
-
-                <Route
-                    path="/knowledge-base/:id"
-                    element={<KnowledgeBaseDetails />}
-                />
-
-                <Route
-                    path="/chat/:id"
-                    element={<Chat />}
-                />
+            {/* -------------------------------- */}
+            {/* Main Application */}
+            {/* -------------------------------- */}
+            <Route path="/" element={<Home />} />
+            <Route path="/knowledge-base" element={<KnowledgeBase />} />
+            <Route path="/knowledge-base/:id" element={<KnowledgeBaseDetails />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat/:id" element={<Chat />} />
 
                 {/* -------------------------------- */}
                 {/* Fallback */}

@@ -101,9 +101,9 @@ export const fetchSources = createAsyncThunk(
 // Add text source
 export const addTextSource = createAsyncThunk(
     "knowledgeBase/addTextSource",
-    async ({ knowledgeBaseId, content }, { rejectWithValue }) => {
+    async ({ knowledgeBaseId, content, title }, { rejectWithValue }) => {
         try {
-            const response = await createTextSource({ knowledgeBaseId, content });
+            const response = await createTextSource({ knowledgeBaseId, content, title });
             return response.data.data;
         } catch (error) {
             return rejectWithValue(

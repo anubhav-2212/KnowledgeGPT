@@ -9,7 +9,6 @@ import {
     deleteKnowledgeBase,
 } from "../store/thunks/knowledgeBase.thunks";
 import {
-    Database,
     Plus,
     Search,
     Loader2,

@@ -18,7 +18,6 @@ import {
     Files,
     Loader2,
     AlertTriangle,
-    ExternalLink,
 } from "lucide-react";
 
 export default function KnowledgeBaseDetails() {
@@ -26,7 +25,7 @@ export default function KnowledgeBaseDetails() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { currentKB, isCurrentKBLoading, isDeleting, error } = useSelector(
+    const { currentKB, isCurrentKBLoading, isDeleting } = useSelector(
         (state) => state.knowledgeBase
     );
 
