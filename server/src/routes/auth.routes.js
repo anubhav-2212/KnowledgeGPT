@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { registerUser, loginUser,logoutUser, getMe } from '../controllers/auth.controller.js';
+import { registerUser, loginUser, logoutUser, getMe, getProfile } from '../controllers/auth.controller.js';
 import { auth } from '../middleware/auth.middleware.js';
 
 const authRoutes=Router();
@@ -15,6 +15,9 @@ authRoutes.post('/logout',logoutUser)
 
 //get current logged in user
 authRoutes.get('/me',auth,getMe)
+
+//get profile
+authRoutes.get('/profile',auth,getProfile)
 
 
 export default authRoutes;

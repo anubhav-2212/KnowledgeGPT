@@ -4,6 +4,7 @@ import {
     login,
     register,
     fetchCurrentUser,
+    getProfile,
     logout,
 } from "../thunks/auth.thunks";
 
@@ -83,6 +84,24 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.user = null;
+            });
+
+        // ---------------- GET PROFILE ----------------
+        builder
+            .addCase(getProfile.pending, (state) => {
+                state.isLoading = true;
+            })
+
+            .addCase(getProfile.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = true;
+                state.user = action.payload;
+                state.error = null;
+            })
+
+            .addCase(getProfile.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
             });
 
         // ---------------- LOGOUT ----------------

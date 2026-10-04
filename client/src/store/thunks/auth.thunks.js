@@ -4,6 +4,7 @@ import {
     loginUser,
     registerUser,
     getCurrentUser,
+    getUserProfile,
     logoutUser,
 } from "../../Api/auth.api";
 
@@ -52,6 +53,22 @@ export const fetchCurrentUser = createAsyncThunk(
             return response.data.data;
         } catch (error) {
             return rejectWithValue(null);
+        }
+    }
+);
+
+// Get profile
+export const getProfile = createAsyncThunk(
+    "auth/getProfile",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await getUserProfile();
+
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.error || "Failed to fetch profile."
+            );
         }
     }
 );

@@ -6,7 +6,7 @@ const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
     process.env.JWT_SECRET || 'default_jwt_secret_dev',
-    { expiresIn: '30d' }
+    { expiresIn: '24h' }
   );
 };
 
@@ -116,3 +116,5 @@ export const getMe = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getProfile = getMe;

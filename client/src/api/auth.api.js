@@ -15,3 +15,7 @@ export const logoutUser = () => {
 export const getCurrentUser = () => {
     return api.get("/auth/me");
 };
+
+export const getUserProfile = () => {
+    return api.get("/auth/profile");
+};
