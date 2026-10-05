@@ -5,7 +5,7 @@ import AppLayout from "../components/layout/AppLayout";
 import MarkdownRenderer from "../components/chat/MarkdownRenderer";
 import CitationViewerModal from "../components/chat/CitationViewerModal";
 import { fetchKnowledgeBases } from "../store/thunks/knowledgeBase.thunks";
-import { streamChatQuery } from "../Api/chat.api";
+import { streamChatQuery } from "../api/chat.api";
 import {
     Send,
     Bot,

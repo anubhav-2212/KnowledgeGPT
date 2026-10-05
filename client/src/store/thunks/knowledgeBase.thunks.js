@@ -4,14 +4,14 @@ import {
     getKnowledgeBaseById,
     createKnowledgeBase as createKBApi,
     deleteKnowledgeBase as deleteKBApi,
-} from "../../Api/knowledgeBase.api";
+} from "../../api/knowledgeBase.api";
 import {
     getSourcesByKb,
     createTextSource,
     createWebsiteSource,
     uploadPdfSource as uploadPdfApi,
     deleteSourceApi,
-} from "../../Api/source.api";
+} from "../../api/source.api";
 
 // Fetch all Knowledge Bases
 export const fetchKnowledgeBases = createAsyncThunk(

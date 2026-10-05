@@ -6,7 +6,7 @@ import {
     getCurrentUser,
     getUserProfile,
     logoutUser,
-} from "../../Api/auth.api";
+} from "../../api/auth.api";
 
 // Login
 export const login = createAsyncThunk(
