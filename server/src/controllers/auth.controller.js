@@ -5,7 +5,7 @@ import { User } from '../models/User.models.js';
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
-    process.env.JWT_SECRET || 'default_jwt_secret_dev',
+    process.env.JWT_SECRET,
     { expiresIn: '24h' }
   );
 };

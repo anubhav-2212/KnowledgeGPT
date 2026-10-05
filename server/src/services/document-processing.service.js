@@ -47,6 +47,8 @@ export const processDocument = async (sourceId) => {
                     sourceName: source.sourceName,
                 },
             });
+            // Small throttle (100ms) to avoid tripping the 100 requests/min rate limit
+            await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
         // Ensure collection exists in Qdrant

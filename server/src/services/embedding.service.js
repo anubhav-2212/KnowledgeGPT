@@ -6,7 +6,7 @@ const ai = new GoogleGenAI({
 // generate embedding for text chunks
 export const embedText = async (text) => {
   const response = await ai.models.embedContent({
-    model: "gemini-embedding-001",
+    model: "text-embedding-004",
     contents: text,
   });
 return response.embeddings[0].values
