@@ -155,6 +155,29 @@ export default function Chat() {
                     setIsGenerating(false);
                 },
                 onError: (err) => {
+                    let friendlyError = "Failed to get an answer. Please try again.";
+                    if (typeof err === "string") {
+                        try {
+                            const parsed = JSON.parse(err);
+                            if (parsed.error?.message) {
+                                try {
+                                    const nested = JSON.parse(parsed.error.message);
+                                    friendlyError = nested.error?.message || parsed.error.message;
+                                } catch {
+                                    friendlyError = parsed.error.message;
+                                }
+                            } else if (parsed.message) {
+                                friendlyError = parsed.message;
+                            } else {
+                                friendlyError = err;
+                            }
+                        } catch {
+                            friendlyError = err;
+                        }
+                    } else if (err?.message) {
+                        friendlyError = err.message;
+                    }
+
                     setMessages((prev) =>
                         prev.map((msg) =>
                             msg.id === assistantMsgId
@@ -162,7 +185,7 @@ export default function Chat() {
                                       ...msg,
                                       text:
                                           msg.text ||
-                                          `⚠️ Failed to get answer: ${err}`,
+                                          `⚠️ ${friendlyError}`,
                                       isStreaming: false,
                                       isError: true,
                                   }
@@ -171,6 +194,7 @@ export default function Chat() {
                     );
                     setIsGenerating(false);
                 },
+
             });
         } catch (error) {
             if (error.name !== "AbortError") {
