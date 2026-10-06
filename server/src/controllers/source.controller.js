@@ -178,7 +178,7 @@ export const uploadPdfSource = async (req, res) => {
 
     const { text, pages, info } = result;
 
-    const knowledgeBase = await KnowledgeBase.findByOne({_id:knowledgeBaseId,userId:req.user.id});
+    const knowledgeBase = await KnowledgeBase.findOne({_id:knowledgeBaseId,userId:req.user.id});
     if (!knowledgeBase) {
       return res.status(404).json({
         success: false,

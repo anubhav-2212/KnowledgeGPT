@@ -6,18 +6,26 @@ const COLLECTION_NAME = process.env.QDRANT_COLLECTION_NAME;
 export const ensureCollection = async (vectorSize) => {
     const exists = await qdrant.collectionExists(COLLECTION_NAME);
 
-    if (exists.exists) {
-        return;
+    if (!exists.exists) {
+        await qdrant.createCollection(COLLECTION_NAME, {
+            vectors: {
+                size: vectorSize,
+                distance: "Cosine",
+            },
+        });
+        console.log("Collection created");
     }
 
-    await qdrant.createCollection(COLLECTION_NAME, {
-        vectors: {
-            size: vectorSize,
-            distance: "Cosine",
-        },
-    });
-
-    console.log("Collection created");
+    // Ensure payload index on knowledgeBaseId for fast filtering
+    try {
+        await qdrant.createPayloadIndex(COLLECTION_NAME, {
+            field_name: "knowledgeBaseId",
+            field_schema: "keyword",
+            wait: true,
+        });
+    } catch {
+        // Index already exists or supported
+    }
 };
 
 export const upsertVectors = async (vectors) => {

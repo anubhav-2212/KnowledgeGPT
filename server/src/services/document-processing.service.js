@@ -31,7 +31,9 @@ export const processDocument = async (sourceId) => {
 
         // Generate embedding for each chunk
         const vectors = [];
-        for (const chunk of chunks) {
+        console.log(`[Worker] Generating embeddings for ${chunks.length} chunks of "${source.sourceName || source._id}"...`);
+        for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
             const embeddingVector = await embedText(chunk.content);
             vectors.push({
                 id: crypto.randomUUID(),
@@ -47,8 +49,13 @@ export const processDocument = async (sourceId) => {
                     sourceName: source.sourceName,
                 },
             });
-            // Small throttle (100ms) to avoid tripping the 100 requests/min rate limit
-            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            if ((i + 1) % 10 === 0 || i + 1 === chunks.length) {
+                console.log(`[Worker] Embedded ${i + 1}/${chunks.length} chunks (${Math.round(((i + 1) / chunks.length) * 100)}%)`);
+            }
+
+            // Small throttle (150ms) to stay within API rate limits
+            await new Promise((resolve) => setTimeout(resolve, 150));
         }
 
         // Ensure collection exists in Qdrant
