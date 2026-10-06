@@ -62,6 +62,33 @@ const CANDIDATE_MODELS = [
     "models/gemini-flash-latest",
 ];
 
+export const generateAnswer = async (question, context) => {
+    const prompt = `
+${SYSTEM_INSTRUCTIONS}
+
+Context:
+${context || "No relevant context found in this knowledge base."}
+
+Question:
+${question}
+    `;
+
+    let lastError = null;
+    for (const model of CANDIDATE_MODELS) {
+        try {
+            const response = await ai.models.generateContent({
+                model,
+                contents: prompt,
+            });
+            return response.text;
+        } catch (error) {
+            console.warn(`Model ${model} failed: ${error.message}. Trying next candidate...`);
+            lastError = error;
+        }
+    }
+
+    throw lastError || new Error("All AI models failed to respond.");
+};
 
 export const generateAnswerStream = async (question, context) => {
     const prompt = `
