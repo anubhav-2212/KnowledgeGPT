@@ -12,6 +12,7 @@ const initialState = {
     user: null,
     isAuthenticated: false,
     isLoading: false,
+    isInitialized: false,
     error: null,
 };
 
@@ -22,6 +23,12 @@ const authSlice = createSlice({
 
     reducers: {
         clearError: (state) => {
+            state.error = null;
+        },
+        setUnauthenticated: (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+            state.isInitialized = true;
             state.error = null;
         },
     },
@@ -37,6 +44,7 @@ const authSlice = createSlice({
             .addCase(login.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isInitialized = true;
                 state.user = action.payload;
                 state.error = null;
             })
@@ -57,6 +65,7 @@ const authSlice = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isInitialized = true;
                 state.user = action.payload;
                 state.error = null;
             })
@@ -76,6 +85,7 @@ const authSlice = createSlice({
             .addCase(fetchCurrentUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isInitialized = true;
                 state.user = action.payload;
                 state.error = null;
             })
@@ -83,6 +93,7 @@ const authSlice = createSlice({
             .addCase(fetchCurrentUser.rejected, (state) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
+                state.isInitialized = true;
                 state.user = null;
             });
 
@@ -95,6 +106,7 @@ const authSlice = createSlice({
             .addCase(getProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isInitialized = true;
                 state.user = action.payload;
                 state.error = null;
             })
@@ -114,6 +126,7 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.user = null;
                 state.isAuthenticated = false;
+                state.isInitialized = true;
                 state.error = null;
             })
 
@@ -124,6 +137,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, setUnauthenticated } = authSlice.actions;
 
 export default authSlice.reducer;
