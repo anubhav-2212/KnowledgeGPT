@@ -3,10 +3,27 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
     loginUser,
     registerUser,
+    googleLoginApi,
     getCurrentUser,
     getUserProfile,
     logoutUser,
 } from "../../api/auth.api";
+
+// Google Login
+export const googleLogin = createAsyncThunk(
+    "auth/googleLogin",
+    async (credential, { rejectWithValue }) => {
+        try {
+            const response = await googleLoginApi(credential);
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.error ||
+                    "Google authentication failed. Please try again."
+            );
+        }
+    }
+);
 
 // Login
 export const login = createAsyncThunk(
@@ -48,7 +65,10 @@ export const fetchCurrentUser = createAsyncThunk(
     "auth/fetchCurrentUser",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await getCurrentUser();
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Auth timeout")), 4000)
+            );
+            const response = await Promise.race([getCurrentUser(), timeoutPromise]);
 
             return response.data.data;
         } catch (error) {

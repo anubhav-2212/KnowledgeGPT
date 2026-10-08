@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
     login,
     register,
+    googleLogin,
     fetchCurrentUser,
     getProfile,
     logout,
@@ -34,6 +35,27 @@ const authSlice = createSlice({
     },
 
     extraReducers: (builder) => {
+        // ---------------- GOOGLE LOGIN ----------------
+        builder
+            .addCase(googleLogin.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+
+            .addCase(googleLogin.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = true;
+                state.isInitialized = true;
+                state.user = action.payload;
+                state.error = null;
+            })
+
+            .addCase(googleLogin.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = false;
+                state.error = action.payload;
+            });
+
         // ---------------- LOGIN ----------------
         builder
             .addCase(login.pending, (state) => {

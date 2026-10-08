@@ -7,9 +7,11 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import {
     login,
     register,
+    googleLogin,
 } from "../../store/thunks/auth.thunks";
 
 const AuthForms = () => {
@@ -361,44 +363,30 @@ console.log("IS LOGIN FULFILLED:", login.fulfilled.match(result));
             {/* Google Button */}
             {/* ------------------------------------------ */}
 
-            <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => {
-                    // Google OAuth will be implemented later
-                }}
-                className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#d9e0e7] bg-white text-[14px] font-medium text-[#263238] transition hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-                {/* Google Icon */}
-                <svg
-                    width="17"
-                    height="17"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path
-                        fill="#4285F4"
-                        d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
-                    />
-
-                    <path
-                        fill="#34A853"
-                        d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.7-1.72-5.47-4.03H3.28v2.53A9.75 9.75 0 0 0 12 21.75Z"
-                    />
-
-                    <path
-                        fill="#FBBC05"
-                        d="M6.53 13.83A5.86 5.86 0 0 1 6.22 12c0-.64.11-1.26.31-1.83V7.64H3.28A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.36l3.25-2.53Z"
-                    />
-
-                    <path
-                        fill="#EA4335"
-                        d="M12 6.14c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.17 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.72 5.39l3.25 2.53C7.3 7.86 9.46 6.14 12 6.14Z"
-                    />
-                </svg>
-
-                Continue with Google
-            </button>
+            <div className="flex w-full justify-center">
+                <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                        if (credentialResponse.credential) {
+                            const res = await dispatch(
+                                googleLogin(credentialResponse.credential)
+                            );
+                            if (googleLogin.fulfilled.match(res)) {
+                                navigate("/");
+                            }
+                        }
+                    }}
+                    onError={() => {
+                        setValidationError(
+                            "Google authentication was cancelled or failed."
+                        );
+                    }}
+                    theme="outline"
+                    size="large"
+                    shape="rectangular"
+                    text="continue_with"
+                    width="100%"
+                />
+            </div>
 
             {/* ------------------------------------------ */}
             {/* Switch Login / Register */}

@@ -8,6 +8,10 @@ export const loginUser = (data) => {
     return api.post("/auth/login", data);
 };
 
+export const googleLoginApi = (credential) => {
+    return api.post("/auth/google", { credential });
+};
+
 export const logoutUser = () => {
     return api.post("/auth/logout");
 };
